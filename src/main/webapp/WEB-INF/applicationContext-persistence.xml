@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.0.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+    
+    <!-- Configures the database connection. -->
+    <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+        <property name="driverClassName" value="org.postgresql.Driver" />
+        <property name="jdbcUrl"         value="jdbc:postgresql://localhost:5433/geobotdb"/>
+        <property name="username"        value="geobot" />
+        <property name="password"        value="_geo" />
+        <property name="connectionTestQuery" value="SELECT 1"/>
+    </bean>
+    
+    <!-- Creates the datasource bean. -->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
+        <constructor-arg index="0" ref="hikariConfig"/>
+    </bean>
+
+    <bean id="jpaDialect" class="org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect" />
+ 
+    <!--
+        Specifies the default settings that are compatible with eclipseLinkJpaVendorAdapter
+    -->
+    <bean id="jpaVendorAdapter"
+          class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter">
+        <property name="database" value="POSTGRESQL" />
+        <property name="databasePlatform" value="org.eclipse.persistence.platform.database.PostgreSQLPlatform" />
+    </bean>
+ 
+    <!-- Creates the bean that creates the JPA entity manager factory. -->
+    <bean id="entityManagerFactory"
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="persistenceXmlLocation" value="classpath:META-INF/persistence.xml" />
+        <property name="persistenceUnitName" value="com.vgilab.geobot" />
+        <property name="dataSource" ref="dataSource" />
+        <property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
+        <property name="jpaDialect" ref="jpaDialect" />
+        <property name="packagesToScan" value="com.vgilab.geobot.persistence"/>
+        <property name="jpaProperties">
+            <props>
+                <!--
+                    Enable weaving later on http://stackoverflow.com/questions/10769051/eclipselinkjpavendoradapter-instead-of-hibernatejpavendoradapter-issue
+                -->
+                <prop key="eclipselink.weaving">false</prop>
+            </props>
+        </property>      
+    </bean>
+    
+    <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+
+    <!--
+        Creates the transaction manager bean that integrates the used JPA provider with the
+        Spring transaction mechanism.
+    -->
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
+        <property name="dataSource" ref="dataSource" />
+        <property name="jpaDialect" ref="jpaDialect" />
+    </bean>
+
+    <!-- Enables annotation-driven transaction management. -->
+    <tx:annotation-driven transaction-manager="transactionManager" />
+ 
+    <jpa:repositories base-package="com.vgilab.geobot.persistence.repositories"/>
+</beans>

@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title><ui:insert name="title">#{bundle.Coordinates}</ui:insert></title>
+        <script type='text/javascript' src='http://maps.google.com/maps/api/js?sensor=true'></script>
+    </h:head>
+
+    <h:body>
+        <p:growl id="growl" sticky="true" showDetail="true"/>
+        <h:form id="CoordinatesListForm">
+            <p:dataTable var="coordinate" value="#{coordinateView.coordinates}" paginator="true" rows="10" scrollable="true"
+                         paginatorTemplate=" {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15,30,60,100,1000" id="datalist" lazy="true" selectionMode="single">
+                <p:ajax event="rowSelect" listener="#{coordinateView.onRowSelect}"  update="viewButton" /> 
+                <p:ajax event="rowUnselect" listener="#{coordinateView.onRowUnselect}" update="viewButton" />
+                <f:facet name="header">
+                    #{bundle.Coordinates}
+                </f:facet>
+                <p:column headerText="#{bundle.Latitude}" sortBy="#{coordinate.latitude}" filterBy="#{coordinate.latitude}">
+                    <h:outputText value="#{coordinate.latitude}" />
+                </p:column>
+                <p:column headerText="#{bundle.LatitudeRef}" sortBy="#{coordinate.latitudeRef}">
+                    <h:outputText value="#{coordinate.latitudeRef}" />
+                </p:column>
+                <p:column headerText="#{bundle.Longitude}" sortBy="#{coordinate.longitude}" filterBy="#{coordinate.longitude}">
+                    <h:outputText value="#{coordinate.longitude}" />
+                </p:column>
+                <p:column headerText="#{bundle.LongitudeRef}" sortBy="#{coordinate.longitudeRef}">
+                    <h:outputText value="#{coordinate.longitudeRef}" />
+                </p:column>
+                <p:column headerText="#{bundle.Altitude}" sortBy="#{coordinate.altitude}" filterBy="#{coordinate.altitude}">
+                    <h:outputText value="#{coordinate.altitude}" />
+                </p:column>
+                <p:column headerText="#{bundle.AltitudeRef}" sortBy="#{coordinate.altitudeRef}">
+                    <h:outputText value="#{coordinate.altitudeRef}" />
+                </p:column>
+                <p:column headerText="#{bundle.Maker}" sortBy="#{coordinate.maker}" filterBy="#{coordinate.maker}">
+                    <h:outputText value="#{coordinate.maker}" />
+                </p:column>
+                <p:column headerText="#{bundle.Model}" sortBy="#{coordinate.model}" filterBy="#{coordinate.model}">
+                    <h:outputText value="#{coordinate.model}" />
+                </p:column>
+                <p:column headerText="#{bundle.Timestamp}" sortBy="#{coordinate.timestamp}">
+                    <h:outputText value="#{coordinate.timestamp.time}">
+                        <f:convertDateTime type="both" dateStyle="long" />
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="#{bundle.UniqueName}" sortBy="#{coordinate.uniqueName}">
+                    <a href="http://flickr.com/photo.gne?id=#{coordinate.uniqueName}" target="_blank"><h:outputText value="#{coordinate.uniqueName}" /></a>
+                </p:column>
+
+                <f:facet name="footer">
+                    <p:commandButton id="viewButton" icon="ui-icon-search" value="#{bundle.View}" update=":CoordinatesViewForm" oncomplete="PF('CoordinatesViewDialog').show()" disabled="#{empty coordinateView.selected}"/>
+                    <!--<p:commandButton id="shapefileButton" ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);" icon="ui-icon-arrowthick-1-s" value="#{bundle.ExportShapefile}" action="#{coordinateView.exportShapefile()}">-->
+                    <p:commandButton id="shapefileButton" ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);" icon="ui-icon-arrowthick-1-s" value="#{bundle.ExportShapefile}">
+                        <p:fileDownload value="#{coordinateView.shapefile}" />
+                    </p:commandButton>       
+                    <!--<p:commandButton id="editButton" icon="ui-icon-pencil" value="#{bundle.Edit}" update=":CoordinatesEditForm" oncomplete="PF('CoordinatesEditDialog').show()" disabled="#{empty coordinateView.selected}"/>-->
+                </f:facet>
+            </p:dataTable>
+            <p:dialog modal="true" widgetVar="statusDialog" header="Status" draggable="false" closable="false" resizable="false">
+                <p:graphicImage name="/ajaxloadingbar.gif" />
+            </p:dialog>
+            <script type="text/javascript">
+                function start() {
+                    PF('statusDialog').show();
+                }
+
+                function stop() {
+                    PF('statusDialog').hide();
+                }
+            </script>
+        </h:form>
+
+        <!--<ui:include src="Edit.xhtml"/>-->
+        <ui:include src="View.xhtml"/>
+    </h:body>
+</html>

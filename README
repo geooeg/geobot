@@ -1,0 +1,28 @@
+=== Database recreation ===
+= persistence.xml =
+There should be either no value for the parameter javax.persistence.schema-generation.database.action or it should be "none"
+
+* Located in the "Other Sources" package "src/main/resources" folder "META-INF"
+
+
+
+= Test class LoadFlickrPhotosJUnitTest =
+All test methods should be ignored
+
+
+* Located in the "Test Packages" package "<default package>"
+
+
+
+
+
+
+=== Change database settings ===
+
+= persistence.xml =
+* Located in the "Other Sources" package "src/main/resources" folder "META-INF"
+
+= applicationContext-persistence.xml =
+* Located in the "Web Pages" folder "WEB-INF"
+
+
