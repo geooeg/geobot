@@ -1,4 +1,0 @@
-13:43:59,202 DEBUG [org.springframework.web.client.RestTemplate] Created GET request for "http://www.everytrail.com/api/trip/search?lat=32.80&lon=34.95&proximity=100&limit=500"
-13:43:59,390 DEBUG [org.springframework.web.client.RestTemplate] Setting request Accept header to [application/xml, text/xml, application/*+xml, text/html, application/xml]
-13:44:08,967 DEBUG [org.springframework.web.client.RestTemplate] GET request for "http://www.everytrail.com/api/trip/search?lat=32.80&lon=34.95&proximity=100&limit=500" resulted in 200 (OK)
-13:44:08,979 DEBUG [org.springframework.web.client.RestTemplate] Reading [class com.vgilab.geobot.everytrail.EtTripSearchResponse] as "text/xml" using [org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter@75f32542]
