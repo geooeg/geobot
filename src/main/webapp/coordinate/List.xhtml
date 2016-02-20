@@ -12,7 +12,20 @@
     </h:head>
 
     <h:body>
+        <script type="text/javascript">
+            function showStatus() {
+                PF('statusDialog').show();
+            }
+
+            function hideStatus() {
+            window.alert("sometext");
+                PF('statusDialog').hide();
+            }
+        </script>
         <p:growl id="growl" sticky="true" showDetail="true"/>
+        <p:dialog widgetVar="statusDialog" id="statusDialog" header="Status" modal="true" height="32" resizable="false" draggable="false">
+            <img src="resources/images/ajaxloadingbar.gif" width="220"/>
+        </p:dialog>
         <h:form id="CoordinatesListForm">
             <p:dataTable var="coordinate" value="#{coordinateView.coordinates}" paginator="true" rows="10" scrollable="true"
                          paginatorTemplate=" {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
@@ -57,27 +70,13 @@
 
                 <f:facet name="footer">
                     <p:commandButton id="viewButton" icon="ui-icon-search" value="#{bundle.View}" update=":CoordinatesViewForm" oncomplete="PF('CoordinatesViewDialog').show()" disabled="#{empty coordinateView.selected}"/>
-                    <!--<p:commandButton id="shapefileButton" ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);" icon="ui-icon-arrowthick-1-s" value="#{bundle.ExportShapefile}" action="#{coordinateView.exportShapefile()}">-->
-                    <p:commandButton id="shapefileButton" ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);" icon="ui-icon-arrowthick-1-s" value="#{bundle.ExportShapefile}">
+                    <p:commandButton id="shapefileButton" ajax="false" onclick="PrimeFaces.monitorDownload(showStatus, hideStatus)" icon="ui-icon-arrowthick-1-s" value="#{bundle.ExportShapefile}">
                         <p:fileDownload value="#{coordinateView.shapefile}" />
                     </p:commandButton>       
                     <!--<p:commandButton id="editButton" icon="ui-icon-pencil" value="#{bundle.Edit}" update=":CoordinatesEditForm" oncomplete="PF('CoordinatesEditDialog').show()" disabled="#{empty coordinateView.selected}"/>-->
                 </f:facet>
             </p:dataTable>
-            <p:dialog modal="true" widgetVar="statusDialog" header="Status" draggable="false" closable="false" resizable="false">
-                <p:graphicImage name="/ajaxloadingbar.gif" />
-            </p:dialog>
-            <script type="text/javascript">
-                function start() {
-                    PF('statusDialog').show();
-                }
-
-                function stop() {
-                    PF('statusDialog').hide();
-                }
-            </script>
         </h:form>
-
         <!--<ui:include src="Edit.xhtml"/>-->
         <ui:include src="View.xhtml"/>
     </h:body>

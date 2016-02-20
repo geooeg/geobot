@@ -6,24 +6,18 @@ import com.vgilab.geobot.flickr.FlickrApi;
 import com.vgilab.geobot.persistence.entity.Coordinates;
 import com.vgilab.geobot.persistence.predicates.CoordinatePredicate;
 import com.vgilab.geobot.persistence.repositories.CoordinateRepository;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.ZipOutputStream;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.DefaultStreamedContent;
@@ -183,21 +177,11 @@ public class CoordinateView implements Serializable {
     }
 
     public StreamedContent getShapefile() {
-        InputStream fis = null;
         try {
-            final File shapefile = this.shapefileService.exportShapefile();
-            fis = new FileInputStream(shapefile);
-            return new DefaultStreamedContent(fis, "application/zip", "exort.zip");
+            final File shapefile = this.shapefileService.exportShapefileWithAllFeatures();
+            return new DefaultStreamedContent(new FileInputStream(shapefile), "application/zip", this.shapefileService.ARCHIVE_FILENAME);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(CoordinateView.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                if(null != fis) {
-                    fis.close();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(CoordinateView.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
         return null;
     }
