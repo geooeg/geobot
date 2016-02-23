@@ -39,13 +39,16 @@ public class FeatureService {
         final SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(this.getFeatureType());
         final List<Coordinates> allCoordinates = this.coordinateRepository.findAll();
         allCoordinates.stream().filter((curCoordinate) -> (null != curCoordinate.getLatitudeConv() && null != curCoordinate.getLongitudeConv())).map((curCoordinate) -> {
-            final Point point = geometryFactory.createPoint(new Coordinate(curCoordinate.getLongitudeConv().doubleValue(), curCoordinate.getLatitudeConv().doubleValue()));
+            final Double longitude = curCoordinate.getLongitudeConv().doubleValue();
+            final Double latitude = curCoordinate.getLatitudeConv().doubleValue();
+            final Double altitude = curCoordinate.getAltitudeConv() != null ? curCoordinate.getAltitudeConv().doubleValue() : null;
+            final Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude, altitude));
+            featureBuilder.add(point);
             featureBuilder.add(curCoordinate.getUniqueName());
             //
-            if (null == curCoordinate.getAltitudeConv()) {
-                featureBuilder.add(curCoordinate.getAltitudeConv());
+            if (null == altitude) {
+                featureBuilder.add(altitude);
             }
-            featureBuilder.add(point);
             // featureBuilder.add(number);
             return curCoordinate;
         }).map((_item) -> featureBuilder.buildFeature(null)).forEach((feature) -> {
@@ -57,10 +60,10 @@ public class FeatureService {
     public SimpleFeatureType getFeatureType() {
         final SimpleFeatureTypeBuilder featureTypeBuilder = new SimpleFeatureTypeBuilder();
         featureTypeBuilder.setName("Point");
+        featureTypeBuilder.setCRS(DefaultGeographicCRS.WGS84_3D); // set crs first
+        featureTypeBuilder.add("the_geom", Point.class); // then add geometry
         featureTypeBuilder.add("name", String.class);
         featureTypeBuilder.add("height", Double.class);
-        featureTypeBuilder.setCRS(DefaultGeographicCRS.WGS84); // set crs first
-        featureTypeBuilder.add("location", Point.class); // then add geometry
         return featureTypeBuilder.buildFeatureType();
     }
 }
