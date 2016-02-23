@@ -17,12 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- *
+ * http://docs.geotools.org/stable/tutorials/feature/csv2shp.html
+ * 
  * @author smuellner
  */
 @Service
 public class FeatureService {
-    
+
     @Autowired
     private CoordinateRepository coordinateRepository;
 
@@ -38,25 +39,23 @@ public class FeatureService {
         final GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
         final SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(this.getFeatureType());
         final List<Coordinates> allCoordinates = this.coordinateRepository.findAll();
-        allCoordinates.stream().filter((curCoordinate) -> (null != curCoordinate.getLatitudeConv() && null != curCoordinate.getLongitudeConv())).map((curCoordinate) -> {
-            final Double longitude = curCoordinate.getLongitudeConv().doubleValue();
-            final Double latitude = curCoordinate.getLatitudeConv().doubleValue();
-            final Double altitude = curCoordinate.getAltitudeConv() != null ? curCoordinate.getAltitudeConv().doubleValue() : null;
-            final Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude, altitude));
-            featureBuilder.add(point);
-            featureBuilder.add(curCoordinate.getUniqueName());
-            //
-            if (null == altitude) {
-                featureBuilder.add(altitude);
+        for (final Coordinates curCoordinate : allCoordinates) {
+            if (null != curCoordinate.getLatitudeConv() && null != curCoordinate.getLongitudeConv()) {
+                final Double longitude = curCoordinate.getLongitudeConv().doubleValue();
+                final Double latitude = curCoordinate.getLatitudeConv().doubleValue();
+                final Coordinate coordinate = curCoordinate.getAltitudeConv() != null ? new Coordinate(longitude, latitude, curCoordinate.getAltitudeConv().doubleValue()) : new Coordinate(longitude, latitude);
+                final Point point = geometryFactory.createPoint(coordinate);
+                featureBuilder.add(point);
+                featureBuilder.add(curCoordinate.getUniqueName());
+                if (null != curCoordinate.getAltitudeConv()) {
+                    featureBuilder.add(curCoordinate.getAltitudeConv().doubleValue());
+                }
+                features.add(featureBuilder.buildFeature(null));
             }
-            // featureBuilder.add(number);
-            return curCoordinate;
-        }).map((_item) -> featureBuilder.buildFeature(null)).forEach((feature) -> {
-            features.add(feature);
-        }); /* Longitude (= x coord) first ! */
+        }
         return features;
     }
-    
+
     public SimpleFeatureType getFeatureType() {
         final SimpleFeatureTypeBuilder featureTypeBuilder = new SimpleFeatureTypeBuilder();
         featureTypeBuilder.setName("Point");
